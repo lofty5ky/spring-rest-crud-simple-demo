@@ -2,9 +2,10 @@ package org.example.springrestcrudsimpledemo.rest;
 
 import jakarta.annotation.PostConstruct;
 import org.example.springrestcrudsimpledemo.entity.Student;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ public class StudentRestController {
     private List<Student> studentList;
 
     @PostConstruct
-    private void loadData(){
+    private void loadData() {
         studentList = new ArrayList<>();
 
         studentList.add(new Student("Rick", "Novak"));
@@ -23,6 +24,7 @@ public class StudentRestController {
         studentList.add(new Student("Roger", "Lum"));
         studentList.add(new Student("Jeff", "Johnson"));
     }
+
     @GetMapping("/students")
     public List<Student> getAllStudent() {
         return studentList;
@@ -34,29 +36,5 @@ public class StudentRestController {
             throw new StudentNotFoundException("Student ID not found: " + studentId);
         }
         return studentList.get(studentId);
-    }
-
-    // catch student not found exception
-    @ExceptionHandler
-    public ResponseEntity<StudentErrorResponse> handlerIDNotFoundException(StudentNotFoundException ex) {
-        StudentErrorResponse error = new StudentErrorResponse();
-
-        error.setStatus(HttpStatus.NOT_FOUND.value());
-        error.setMessage(ex.getMessage());
-        error.setTimeStamp(System.currentTimeMillis());
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    // catch for other exception can happen
-    @ExceptionHandler
-    public ResponseEntity<StudentErrorResponse> handlerOtherException(Exception ex) {
-        StudentErrorResponse error = new StudentErrorResponse();
-
-        error.setStatus(HttpStatus.BAD_REQUEST.value());
-        error.setMessage(ex.getMessage());
-        error.setTimeStamp(System.currentTimeMillis());
-
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }
