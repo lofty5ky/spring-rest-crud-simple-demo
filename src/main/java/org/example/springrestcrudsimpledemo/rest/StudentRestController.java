@@ -1,11 +1,9 @@
 package org.example.springrestcrudsimpledemo.rest;
 
-import org.example.springrestcrudsimpledemo.dao.JpaStudentDAO;
 import org.example.springrestcrudsimpledemo.entity.Student;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.example.springrestcrudsimpledemo.service.StudentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,22 +11,39 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 public class StudentRestController {
-    private JpaStudentDAO jpaStudentDAO;
+    private final StudentService studentService;
 
-    public StudentRestController(JpaStudentDAO jpaStudentDAO) {
-        this.jpaStudentDAO = jpaStudentDAO;
+    @Autowired
+    public StudentRestController(StudentService studentService) {
+        this.studentService = studentService;
     }
 
     @GetMapping("/students")
     public List<Student> getAllStudent() {
-        return jpaStudentDAO.findAllStudents();
+        return studentService.findAll();
     }
 
     @GetMapping("/students/{studentId}")
     public Optional<Student> getStudentById(@PathVariable int studentId) {
-        if (studentId >= jpaStudentDAO.findAllStudents().size() || studentId <= 0) {
+        if (studentId >= studentService.findAll().size() || studentId <= 0) {
             throw new StudentNotFoundException("Student ID not found: " + studentId);
         }
-        return jpaStudentDAO.findStudentById(studentId);
+        return studentService.findStudentById(studentId);
+    }
+
+    @PostMapping("/student")
+    public Student addStudent(@RequestBody Student student) {
+        student.setId(0);
+        return studentService.save(student);
+    }
+
+    @PutMapping("/students")
+    public Student updateStudent(@RequestBody Student student) {
+        return studentService.save(student);
+    }
+
+    @DeleteMapping("/students/{studentId}")
+    public void deleteStudent(@PathVariable int studentId) {
+        studentService.deleteStudent(studentId);
     }
 }
